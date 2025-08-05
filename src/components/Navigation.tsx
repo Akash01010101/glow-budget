@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
@@ -14,6 +15,7 @@ import {
 const Navigation = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -91,11 +93,17 @@ const Navigation = () => {
           <div className="border-t border-border pt-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold">JD</span>
+                <span className="text-primary-foreground font-bold">
+                  {user?.user_metadata?.full_name
+                    ?.split(' ')
+                    .map((name: string) => name[0])
+                    .join('')
+                    .toUpperCase() || 'U'}
+                </span>
               </div>
               <div>
-                <p className="text-sm font-medium">John Doe</p>
-                <p className="text-xs text-muted-foreground">john@example.com</p>
+                <p className="text-sm font-medium">{user?.user_metadata?.full_name || 'User'}</p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
               </div>
             </div>
             
@@ -103,6 +111,7 @@ const Navigation = () => {
               variant="ghost" 
               size="sm" 
               className="w-full justify-start text-muted-foreground"
+              onClick={signOut}
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out

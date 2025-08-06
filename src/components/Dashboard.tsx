@@ -13,16 +13,46 @@ import { ExpenseChart } from "./charts/ExpenseChart";
 import { IncomeVsExpenseChart } from "./charts/IncomeVsExpenseChart";
 import { TrendChart } from "./charts/TrendChart";
 import { RecentTransactions } from "./RecentTransactions";
-
-// Mock data for demonstration
-const dashboardData = {
-  totalIncome: 5420.00,
-  totalExpenses: 3240.50,
-  balance: 2179.50,
-  monthlyChange: 12.5
-};
+import { useTransactions } from "@/hooks/useTransactions";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const { transactions, loading, exportToExcel } = useTransactions();
+
+  if (!user) {
+    return (
+      <div className="min-h-screen p-6 flex items-center justify-center">
+        <p className="text-muted-foreground">Please log in to view your dashboard.</p>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen p-6 flex items-center justify-center">
+        <p className="text-muted-foreground">Loading your financial data...</p>
+      </div>
+    );
+  }
+
+  const incomeTransactions = transactions.filter(t => t.type === 'income');
+  const expenseTransactions = transactions.filter(t => t.type === 'expense');
+  
+  const totalIncome = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+  const totalExpenses = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
+  const balance = totalIncome - totalExpenses;
+
+  const thisMonth = new Date().getMonth();
+  const thisMonthIncome = incomeTransactions
+    .filter(t => new Date(t.date).getMonth() === thisMonth)
+    .reduce((sum, t) => sum + t.amount, 0);
+  const thisMonthExpenses = expenseTransactions
+    .filter(t => new Date(t.date).getMonth() === thisMonth)
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome * 100) : 0;
+
   return (
     <div className="min-h-screen p-6 space-y-6">
       {/* Header */}
@@ -36,13 +66,9 @@ const Dashboard = () => {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size="sm" onClick={exportToExcel}>
             <PieChart className="w-4 h-4" />
             Export Report
-          </Button>
-          <Button variant="accent" size="sm">
-            <DollarSign className="w-4 h-4" />
-            Add Transaction
           </Button>
         </div>
       </div>
@@ -56,10 +82,10 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">
-              ${dashboardData.totalIncome.toLocaleString()}
+              ${totalIncome.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              +12.5% from last month
+              This month: ${thisMonthIncome.toLocaleString()}
             </p>
           </CardContent>
         </Card>
@@ -71,10 +97,10 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">
-              ${dashboardData.totalExpenses.toLocaleString()}
+              ${totalExpenses.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              +8.2% from last month
+              This month: ${thisMonthExpenses.toLocaleString()}
             </p>
           </CardContent>
         </Card>
@@ -85,11 +111,11 @@ const Dashboard = () => {
             <Wallet className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gradient-primary">
-              ${dashboardData.balance.toLocaleString()}
+            <div className={`text-2xl font-bold ${balance >= 0 ? 'text-success' : 'text-destructive'}`}>
+              ${balance.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              +18.2% from last month
+              {balance >= 0 ? 'Positive balance' : 'Negative balance'}
             </p>
           </CardContent>
         </Card>
@@ -101,10 +127,10 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gradient-secondary">
-              40.2%
+              {savingsRate.toFixed(1)}%
             </div>
             <p className="text-xs text-muted-foreground">
-              +2.1% from last month
+              {totalIncome > 0 ? 'Based on total income' : 'No income recorded'}
             </p>
           </CardContent>
         </Card>

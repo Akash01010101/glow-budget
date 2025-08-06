@@ -16,53 +16,87 @@ import {
   Car,
   Coffee,
   Zap,
-  Home
+  Home,
+  Trash2
 } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { ExpenseChart } from "@/components/charts/ExpenseChart";
+import { useTransactions } from "@/hooks/useTransactions";
+import { useAuth } from "@/contexts/AuthContext";
 
-// Mock data
-const expenseData = [
-  { id: 1, category: 'Food & Dining', description: 'Starbucks Coffee', amount: 15.50, date: '2024-01-15' },
-  { id: 2, category: 'Transportation', description: 'Uber Ride', amount: 28.75, date: '2024-01-14' },
-  { id: 3, category: 'Shopping', description: 'Amazon Purchase', amount: 156.99, date: '2024-01-14' },
-  { id: 4, category: 'Bills & Utilities', description: 'Electricity Bill', amount: 89.30, date: '2024-01-13' },
-  { id: 5, category: 'Food & Dining', description: 'Grocery Shopping', amount: 67.20, date: '2024-01-12' },
-];
+const iconMap: Record<string, any> = {
+  Coffee,
+  Car,
+  ShoppingCart,
+  Zap,
+  Home,
+};
 
-const categories = [
-  { name: 'Food & Dining', icon: Coffee, color: 'text-chart-1' },
-  { name: 'Transportation', icon: Car, color: 'text-chart-2' },
-  { name: 'Shopping', icon: ShoppingCart, color: 'text-chart-3' },
-  { name: 'Bills & Utilities', icon: Zap, color: 'text-chart-4' },
-  { name: 'Housing', icon: Home, color: 'text-chart-5' },
-];
+interface FormData {
+  description: string;
+  amount: string;
+  date: string;
+  category_id: string;
+}
 
 const Expenses = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const { user } = useAuth();
+  const { transactions, categories, loading, addTransaction, deleteTransaction, exportToExcel } = useTransactions();
+  const { register, handleSubmit, reset, setValue } = useForm<FormData>();
 
-  const totalExpenses = expenseData.reduce((sum, expense) => sum + expense.amount, 0);
-  const thisMonthExpenses = expenseData
+  if (!user) {
+    return (
+      <div className="min-h-screen p-6 flex items-center justify-center">
+        <p className="text-muted-foreground">Please log in to view your expense data.</p>
+      </div>
+    );
+  }
+
+  const expenseTransactions = transactions.filter(t => t.type === 'expense');
+  const expenseCategories = categories.filter(c => c.type === 'expense');
+
+  const totalExpenses = expenseTransactions.reduce((sum, expense) => sum + expense.amount, 0);
+  const thisMonthExpenses = expenseTransactions
     .filter(expense => new Date(expense.date).getMonth() === new Date().getMonth())
     .reduce((sum, expense) => sum + expense.amount, 0);
 
-  const filteredExpenses = expenseData.filter(expense => {
+  const filteredExpenses = expenseTransactions.filter(expense => {
     const matchesSearch = expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         expense.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || selectedCategory === "all" || expense.category === selectedCategory;
+                         expense.category?.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || selectedCategory === "all" || expense.category?.name === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const getCategoryIcon = (categoryName: string) => {
-    const category = categories.find(cat => cat.name === categoryName);
-    return category ? category.icon : ShoppingCart;
+  const getCategoryIcon = (iconName: string) => {
+    return iconMap[iconName] || ShoppingCart;
   };
 
-  const getCategoryColor = (categoryName: string) => {
-    const category = categories.find(cat => cat.name === categoryName);
-    return category ? category.color : 'text-chart-1';
+  const onSubmit = async (data: FormData) => {
+    try {
+      await addTransaction({
+        description: data.description,
+        amount: parseFloat(data.amount),
+        date: data.date,
+        type: 'expense',
+        category_id: data.category_id || null,
+      });
+      reset();
+      setShowAddForm(false);
+    } catch (error) {
+      // Error handled in hook
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen p-6 flex items-center justify-center">
+        <p className="text-muted-foreground">Loading your expense data...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-6 space-y-6">
@@ -77,7 +111,7 @@ const Expenses = () => {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size="sm" onClick={exportToExcel}>
             <Download className="w-4 h-4" />
             Export Excel
           </Button>
@@ -131,7 +165,7 @@ const Expenses = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gradient-primary">
-              {categories.length}
+              {expenseCategories.length}
             </div>
             <p className="text-xs text-muted-foreground">
               Expense categories
@@ -147,58 +181,65 @@ const Expenses = () => {
             <CardTitle>Add New Expense</CardTitle>
             <CardDescription>Record a new expense entry</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Input 
-                  id="description" 
-                  placeholder="e.g., Coffee, Gas, Groceries" 
-                  className="bg-input border-border"
-                />
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Input 
+                    id="description" 
+                    placeholder="e.g., Coffee, Gas, Groceries" 
+                    className="bg-input border-border"
+                    {...register("description", { required: true })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="amount">Amount</Label>
+                  <Input 
+                    id="amount" 
+                    type="number" 
+                    step="0.01"
+                    placeholder="0.00" 
+                    className="bg-input border-border"
+                    {...register("amount", { required: true })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category_id">Category</Label>
+                  <Select onValueChange={(value) => setValue("category_id", value)}>
+                    <SelectTrigger className="bg-input border-border">
+                      <SelectValue placeholder="Select category (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {expenseCategories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="date">Date</Label>
+                  <Input 
+                    id="date" 
+                    type="date" 
+                    className="bg-input border-border"
+                    defaultValue={new Date().toISOString().split('T')[0]}
+                    {...register("date", { required: true })}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="amount">Amount</Label>
-                <Input 
-                  id="amount" 
-                  type="number" 
-                  placeholder="0.00" 
-                  className="bg-input border-border"
-                />
+              <div className="flex gap-3">
+                <Button type="submit" variant="default">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Expense
+                </Button>
+                <Button type="button" variant="ghost" onClick={() => setShowAddForm(false)}>
+                  Cancel
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select>
-                  <SelectTrigger className="bg-input border-border">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.name} value={category.name}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
-                <Input 
-                  id="date" 
-                  type="date" 
-                  className="bg-input border-border"
-                />
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="default">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Expense
-              </Button>
-              <Button variant="ghost" onClick={() => setShowAddForm(false)}>
-                Cancel
-              </Button>
-            </div>
+            </form>
           </CardContent>
         </Card>
       )}
@@ -239,52 +280,69 @@ const Expenses = () => {
                   <SelectTrigger className="w-full sm:w-48 bg-input border-border">
                     <SelectValue placeholder="All categories" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All categories</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category.name} value={category.name}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
+                    <SelectContent>
+                      <SelectItem value="all">All categories</SelectItem>
+                      {expenseCategories.map((category) => (
+                        <SelectItem key={category.id} value={category.name}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
             </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 max-h-96 overflow-y-auto">
-              {filteredExpenses.map((expense) => {
-                const IconComponent = getCategoryIcon(expense.category);
-                const colorClass = getCategoryColor(expense.category);
-                
-                return (
-                  <div 
-                    key={expense.id}
-                    className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-card-accent/50 hover:bg-card-accent transition-colors"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center`}>
-                        <IconComponent className={`h-5 w-5 ${colorClass}`} />
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm">{expense.description}</p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant="secondary" className="text-xs">
-                            {expense.category}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(expense.date).toLocaleDateString()}
-                          </span>
+              {filteredExpenses.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">
+                  {searchTerm || selectedCategory !== "" ? 'No expense entries match your filters.' : 'No expense entries yet. Add your first expense above.'}
+                </p>
+              ) : (
+                filteredExpenses.map((expense) => {
+                  const IconComponent = expense.category?.icon ? getCategoryIcon(expense.category.icon) : ShoppingCart;
+                  
+                  return (
+                    <div 
+                      key={expense.id}
+                      className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-card-accent/50 hover:bg-card-accent transition-colors"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
+                          <IconComponent className="h-5 w-5 text-destructive" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{expense.description}</p>
+                          <div className="flex items-center space-x-2 mt-1">
+                            {expense.category && (
+                              <Badge variant="secondary" className="text-xs">
+                                {expense.category.name}
+                              </Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(expense.date).toLocaleDateString()}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-right">
+                          <p className="font-bold text-destructive">
+                            -${expense.amount.toLocaleString()}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteTransaction(expense.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-destructive">
-                        -${expense.amount.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </CardContent>
         </Card>

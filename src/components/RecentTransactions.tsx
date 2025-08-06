@@ -9,60 +9,33 @@ import {
   TrendingUp,
   TrendingDown
 } from "lucide-react";
+import { useTransactions } from "@/hooks/useTransactions";
 
-const transactions = [
-  {
-    id: 1,
-    type: 'expense',
-    category: 'Food & Dining',
-    description: 'Starbucks Coffee',
-    amount: 15.50,
-    date: '2024-01-15',
-    icon: Coffee,
-  },
-  {
-    id: 2,
-    type: 'income',
-    category: 'Salary',
-    description: 'Monthly Salary',
-    amount: 4200.00,
-    date: '2024-01-15',
-    icon: DollarSign,
-  },
-  {
-    id: 3,
-    type: 'expense',
-    category: 'Transportation',
-    description: 'Uber Ride',
-    amount: 28.75,
-    date: '2024-01-14',
-    icon: Car,
-  },
-  {
-    id: 4,
-    type: 'expense',
-    category: 'Shopping',
-    description: 'Amazon Purchase',
-    amount: 156.99,
-    date: '2024-01-14',
-    icon: ShoppingCart,
-  },
-  {
-    id: 5,
-    type: 'expense',
-    category: 'Bills & Utilities',
-    description: 'Electricity Bill',
-    amount: 89.30,
-    date: '2024-01-13',
-    icon: Zap,
-  },
-];
+const iconMap: Record<string, any> = {
+  Coffee,
+  Car,
+  ShoppingCart,
+  Zap,
+  DollarSign,
+};
 
 export const RecentTransactions = () => {
+  const { transactions, loading } = useTransactions();
+
+  if (loading) {
+    return <div className="text-muted-foreground text-center py-4">Loading transactions...</div>;
+  }
+
+  const recentTransactions = transactions.slice(0, 5);
+
+  if (recentTransactions.length === 0) {
+    return <div className="text-muted-foreground text-center py-4">No transactions yet.</div>;
+  }
+
   return (
     <div className="space-y-4">
-      {transactions.map((transaction) => {
-        const Icon = transaction.icon;
+      {recentTransactions.map((transaction) => {
+        const Icon = transaction.category?.icon ? iconMap[transaction.category.icon] || DollarSign : DollarSign;
         const isIncome = transaction.type === 'income';
         
         return (
@@ -82,9 +55,11 @@ export const RecentTransactions = () => {
                   {transaction.description}
                 </p>
                 <div className="flex items-center space-x-2">
-                  <Badge variant="secondary" className="text-xs">
-                    {transaction.category}
-                  </Badge>
+                  {transaction.category && (
+                    <Badge variant="secondary" className="text-xs">
+                      {transaction.category.name}
+                    </Badge>
+                  )}
                   <span className="text-xs text-muted-foreground">
                     {new Date(transaction.date).toLocaleDateString()}
                   </span>

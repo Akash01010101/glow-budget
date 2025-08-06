@@ -1,13 +1,12 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-  { month: 'Jul', income: 4800, expenses: 3200 },
-  { month: 'Aug', income: 5200, expenses: 3800 },
-  { month: 'Sep', income: 4900, expenses: 3100 },
-  { month: 'Oct', income: 5600, expenses: 3900 },
-  { month: 'Nov', income: 5100, expenses: 3400 },
-  { month: 'Dec', income: 5420, expenses: 3240 },
-];
+interface ChartProps {
+  data: {
+    month: string;
+    income: number;
+    expenses: number;
+  }[];
+}
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -25,7 +24,15 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export const IncomeVsExpenseChart = () => {
+export const IncomeVsExpenseChart = ({ data }: ChartProps) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-80 flex items-center justify-center">
+        <p className="text-muted-foreground">Not enough data to display chart.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="h-80">
       <ResponsiveContainer width="100%" height="100%">
@@ -41,7 +48,7 @@ export const IncomeVsExpenseChart = () => {
             axisLine={false}
             tickLine={false}
             tick={{ fill: 'hsl(var(--muted-foreground))' }}
-            tickFormatter={(value) => `$${value}`}
+            tickFormatter={(value) => `${value}`}
           />
           <Tooltip content={<CustomTooltip />} />
           <Bar 

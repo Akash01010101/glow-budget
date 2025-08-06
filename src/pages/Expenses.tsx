@@ -90,6 +90,23 @@ const Expenses = () => {
     }
   };
 
+  const expenseChartData = expenseTransactions
+    .filter(t => new Date(t.date).getMonth() === new Date().getMonth())
+    .reduce((acc, t) => {
+      const categoryName = t.category?.name || 'Uncategorized';
+      const existing = acc.find(item => item.name === categoryName);
+      if (existing) {
+        existing.value += t.amount;
+      } else {
+        acc.push({ 
+          name: categoryName, 
+          value: t.amount, 
+          color: t.category?.color || 'hsl(var(--muted-foreground))' 
+        });
+      }
+      return acc;
+    }, [] as { name: string; value: number; color: string }[]);
+
   if (loading) {
     return (
       <div className="min-h-screen p-6 flex items-center justify-center">
@@ -253,7 +270,7 @@ const Expenses = () => {
             <CardDescription>Your spending by category this month</CardDescription>
           </CardHeader>
           <CardContent>
-            <ExpenseChart />
+            <ExpenseChart data={expenseChartData} />
           </CardContent>
         </Card>
 

@@ -1,12 +1,12 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-const data = [
-  { name: 'Food & Dining', value: 850, color: 'hsl(var(--chart-1))' },
-  { name: 'Transportation', value: 420, color: 'hsl(var(--chart-2))' },
-  { name: 'Shopping', value: 680, color: 'hsl(var(--chart-3))' },
-  { name: 'Entertainment', value: 320, color: 'hsl(var(--chart-4))' },
-  { name: 'Bills & Utilities', value: 970, color: 'hsl(var(--chart-5))' },
-];
+interface ExpenseChartProps {
+  data: {
+    name: string;
+    value: number;
+    color: string;
+  }[];
+}
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -22,7 +22,15 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-export const ExpenseChart = () => {
+export const ExpenseChart = ({ data }: ExpenseChartProps) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-80 flex items-center justify-center">
+        <p className="text-muted-foreground">No expense data for this month yet.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="h-80">
       <ResponsiveContainer width="100%" height="100%">

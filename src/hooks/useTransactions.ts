@@ -103,7 +103,7 @@ export const useTransactions = () => {
         description: "Your transaction has been successfully recorded.",
       });
 
-      await fetchTransactions();
+      await Promise.all([fetchTransactions(), fetchCategories()]);
       return data;
     } catch (error: any) {
       toast({

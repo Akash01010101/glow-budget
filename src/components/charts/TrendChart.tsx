@@ -1,23 +1,11 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 
-const data = [
-  { day: '1', amount: 120 },
-  { day: '3', amount: 85 },
-  { day: '5', amount: 200 },
-  { day: '7', amount: 95 },
-  { day: '9', amount: 160 },
-  { day: '11', amount: 75 },
-  { day: '13', amount: 310 },
-  { day: '15', amount: 140 },
-  { day: '17', amount: 95 },
-  { day: '19', amount: 180 },
-  { day: '21', amount: 125 },
-  { day: '23', amount: 220 },
-  { day: '25', amount: 190 },
-  { day: '27', amount: 110 },
-  { day: '29', amount: 260 },
-  { day: '31', amount: 145 },
-];
+interface ChartProps {
+  data: {
+    day: string;
+    amount: number;
+  }[];
+}
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -33,7 +21,15 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export const TrendChart = () => {
+export const TrendChart = ({ data }: ChartProps) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-80 flex items-center justify-center">
+        <p className="text-muted-foreground">No spending data for this month yet.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="h-80">
       <ResponsiveContainer width="100%" height="100%">
@@ -55,7 +51,7 @@ export const TrendChart = () => {
             axisLine={false}
             tickLine={false}
             tick={{ fill: 'hsl(var(--muted-foreground))' }}
-            tickFormatter={(value) => `$${value}`}
+            tickFormatter={(value) => `${value}`}
           />
           <Tooltip content={<CustomTooltip />} />
           <Area

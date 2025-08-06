@@ -53,6 +53,44 @@ const Dashboard = () => {
 
   const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome * 100) : 0;
 
+  const expenseChartData = expenseTransactions
+    .filter(t => new Date(t.date).getMonth() === thisMonth)
+    .reduce((acc, t) => {
+      const categoryName = t.category?.name || 'Uncategorized';
+      const existing = acc.find(item => item.name === categoryName);
+      if (existing) {
+        existing.value += t.amount;
+      } else {
+        acc.push({ 
+          name: categoryName, 
+          value: t.amount, 
+          color: t.category?.color || 'hsl(var(--muted-foreground))' 
+        });
+      }
+      return acc;
+    }, [] as { name: string; value: number; color: string }[]);
+
+  const incomeVsExpenseChartData = Array.from({ length: 6 }).map((_, i) => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const month = d.toLocaleString('default', { month: 'short' });
+    const monthIncome = incomeTransactions
+      .filter(t => new Date(t.date).getMonth() === d.getMonth())
+      .reduce((sum, t) => sum + t.amount, 0);
+    const monthExpenses = expenseTransactions
+      .filter(t => new Date(t.date).getMonth() === d.getMonth())
+      .reduce((sum, t) => sum + t.amount, 0);
+    return { month, income: monthIncome, expenses: monthExpenses };
+  }).reverse();
+
+  const trendChartData = Array.from({ length: new Date(new Date().getFullYear(), thisMonth + 1, 0).getDate() }).map((_, i) => {
+    const day = (i + 1).toString();
+    const dayExpenses = expenseTransactions
+      .filter(t => new Date(t.date).getMonth() === thisMonth && new Date(t.date).getDate() === (i + 1))
+      .reduce((sum, t) => sum + t.amount, 0);
+    return { day, amount: dayExpenses };
+  });
+
   return (
     <div className="min-h-screen p-6 space-y-6">
       {/* Header */}
@@ -150,7 +188,7 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ExpenseChart />
+            <ExpenseChart data={expenseChartData} />
           </CardContent>
         </Card>
 
@@ -166,7 +204,7 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <IncomeVsExpenseChart />
+            <IncomeVsExpenseChart data={incomeVsExpenseChartData} />
           </CardContent>
         </Card>
 
@@ -182,7 +220,7 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <TrendChart />
+            <TrendChart data={trendChartData} />
           </CardContent>
         </Card>
 

@@ -63,6 +63,12 @@ export const IncomeVsExpenseChart = ({ data }: ChartProps) => {
             radius={[4, 4, 0, 0]}
             name="Expenses"
           />
+          <Bar 
+            dataKey="sharedExpenses" 
+            fill="hsl(var(--chart-2))"
+            radius={[4, 4, 0, 0]}
+            name="Shared Expenses"
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>

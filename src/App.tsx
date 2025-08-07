@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import Income from "./pages/Income";
 import Expenses from "./pages/Expenses";
+import SharedExpenses from "./pages/SharedExpenses";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -45,6 +46,7 @@ const AppContent = () => {
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/income" element={<ProtectedRoute><Income /></ProtectedRoute>} />
               <Route path="/expenses" element={<ProtectedRoute><Expenses /></ProtectedRoute>} />
+              <Route path="/shared-expenses" element={<ProtectedRoute><SharedExpenses /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/auth" element={<Navigate to="/" replace />} />
               <Route path="*" element={<NotFound />} />

@@ -37,7 +37,7 @@ const Dashboard = () => {
   }
 
   const incomeTransactions = transactions.filter(t => t.type === 'income');
-  const expenseTransactions = transactions.filter(t => t.type === 'expense');
+  const expenseTransactions = transactions.filter(t => t.type === 'expense' || t.type === 'shared-expense');
   
   const totalIncome = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
   const totalExpenses = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
@@ -78,16 +78,23 @@ const Dashboard = () => {
       .filter(t => new Date(t.date).getMonth() === d.getMonth())
       .reduce((sum, t) => sum + t.amount, 0);
     const monthExpenses = expenseTransactions
-      .filter(t => new Date(t.date).getMonth() === d.getMonth())
+      .filter(t => new Date(t.date).getMonth() === d.getMonth() && t.type === 'expense')
       .reduce((sum, t) => sum + t.amount, 0);
-    return { month, income: monthIncome, expenses: monthExpenses };
+    const monthSharedExpenses = expenseTransactions
+      .filter(t => new Date(t.date).getMonth() === d.getMonth() && t.type === 'shared-expense')
+      .reduce((sum, t) => sum + (t.user_share || 0), 0);
+    return { month, income: monthIncome, expenses: monthExpenses, sharedExpenses: monthSharedExpenses };
   }).reverse();
 
   const trendChartData = Array.from({ length: new Date(new Date().getFullYear(), thisMonth + 1, 0).getDate() }).map((_, i) => {
     const day = (i + 1).toString();
     const dayExpenses = expenseTransactions
-      .filter(t => new Date(t.date).getMonth() === thisMonth && new Date(t.date).getDate() === (i + 1))
+      .filter(t => new Date(t.date).getMonth() === thisMonth && new Date(t.date).getDate() === (i + 1) && t.type === 'expense')
       .reduce((sum, t) => sum + t.amount, 0);
+    const daySharedExpenses = expenseTransactions
+      .filter(t => new Date(t.date).getMonth() === thisMonth && new Date(t.date).getDate() === (i + 1) && t.type === 'shared-expense')
+      .reduce((sum, t) => sum + (t.user_share || 0), 0);
+    return { day, amount: dayExpenses + daySharedExpenses };
     return { day, amount: dayExpenses };
   });
 

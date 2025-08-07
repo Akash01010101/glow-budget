@@ -7,7 +7,8 @@ import {
   Zap, 
   DollarSign,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  Users
 } from "lucide-react";
 import { useTransactions } from "@/hooks/useTransactions";
 
@@ -17,6 +18,7 @@ const iconMap: Record<string, any> = {
   ShoppingCart,
   Zap,
   DollarSign,
+  Users,
 };
 
 export const RecentTransactions = () => {
@@ -37,6 +39,7 @@ export const RecentTransactions = () => {
       {recentTransactions.map((transaction) => {
         const Icon = transaction.category?.icon ? iconMap[transaction.category.icon] || DollarSign : DollarSign;
         const isIncome = transaction.type === 'income';
+        const isSharedExpense = transaction.type === 'shared-expense';
         
         return (
           <div 
@@ -45,7 +48,7 @@ export const RecentTransactions = () => {
           >
             <div className="flex items-center space-x-3">
               <Avatar className="h-10 w-10">
-                <AvatarFallback className={`${isIncome ? 'bg-success/20 text-success' : 'bg-primary/20 text-primary'}`}>
+                <AvatarFallback className={`${isIncome ? 'bg-success/20 text-success' : (isSharedExpense ? 'bg-purple-500/20 text-purple-500' : 'bg-primary/20 text-primary')}`}>
                   <Icon className="h-4 w-4" />
                 </AvatarFallback>
               </Avatar>
@@ -70,11 +73,14 @@ export const RecentTransactions = () => {
             <div className="flex items-center space-x-2">
               {isIncome ? (
                 <TrendingUp className="h-4 w-4 text-success" />
+              ) : isSharedExpense ? (
+                <Users className="h-4 w-4 text-purple-500" />
               ) : (
                 <TrendingDown className="h-4 w-4 text-destructive" />
               )}
-              <span className={`font-medium ${isIncome ? 'text-success' : 'text-destructive'}`}>
-                {isIncome ? '+' : '-'}${transaction.amount.toLocaleString()}
+              <span className={`font-medium ${isIncome ? 'text-success' : (isSharedExpense ? 'text-purple-500' : 'text-destructive')}`}>
+                {isIncome ? '+' : '-'}${isSharedExpense ? (transaction.user_share || 0).toLocaleString() : transaction.amount.toLocaleString()}
+                {isSharedExpense && ' (Your Share)'}
               </span>
             </div>
           </div>

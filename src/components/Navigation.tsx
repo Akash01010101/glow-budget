@@ -9,7 +9,8 @@ import {
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  Users
 } from "lucide-react";
 
 const Navigation = () => {
@@ -21,6 +22,7 @@ const Navigation = () => {
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'Income', href: '/income', icon: TrendingUp },
     { name: 'Expenses', href: '/expenses', icon: TrendingDown },
+    { name: 'Shared Expenses', href: '/shared-expenses', icon: Users },
     { name: 'Settings', href: '/settings', icon: Settings },
   ];
 

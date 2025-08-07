@@ -80,7 +80,7 @@ const Income = () => {
   return (
     <div className="min-h-screen p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
           <h1 className="text-4xl font-bold text-gradient-secondary mb-2">
             Income Tracking
@@ -89,8 +89,8 @@ const Income = () => {
             Monitor and manage your income sources
           </p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="secondary" size="sm" onClick={exportToExcel}>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <Button variant="secondary" size="sm" onClick={exportToExcel} className="w-full sm:w-auto">
             <Download className="w-4 h-4" />
             Export Excel
           </Button>
@@ -98,6 +98,7 @@ const Income = () => {
             variant="accent" 
             size="sm"
             onClick={() => setShowAddForm(!showAddForm)}
+            className="w-full sm:w-auto"
           >
             <Plus className="w-4 h-4" />
             Add Income
@@ -231,14 +232,14 @@ const Income = () => {
               <CardTitle>Income History</CardTitle>
               <CardDescription>Your recent income entries</CardDescription>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="relative">
+            <div className="flex flex-col sm:flex-row items-center gap-2 mt-4">
+              <div className="relative flex-1 w-full">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   placeholder="Search income..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-input border-border"
+                  className="pl-10 bg-input border-border w-full"
                 />
               </div>
             </div>
@@ -254,15 +255,15 @@ const Income = () => {
               filteredIncome.map((income) => (
                 <div 
                   key={income.id}
-                  className="flex items-center justify-between p-4 rounded-lg border border-border/50 bg-card-accent/50 hover:bg-card-accent transition-colors"
+                  className="flex flex-wrap items-center justify-between p-4 rounded-lg border border-border/50 bg-card-accent/50 hover:bg-card-accent transition-colors"
                 >
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-4 flex-grow mb-2 sm:mb-0">
                     <div className="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center">
                       <TrendingUp className="h-6 w-6 text-success" />
                     </div>
                     <div>
                       <p className="font-medium">{income.description}</p>
-                      <div className="flex items-center space-x-2 mt-1">
+                      <div className="flex flex-wrap items-center space-x-2 mt-1">
                         {income.category && (
                           <Badge variant="secondary" className="text-xs">
                             {income.category.name}

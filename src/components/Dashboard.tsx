@@ -95,7 +95,6 @@ const Dashboard = () => {
       .filter(t => new Date(t.date).getMonth() === thisMonth && new Date(t.date).getDate() === (i + 1) && t.type === 'shared-expense')
       .reduce((sum, t) => sum + (t.user_share || 0), 0);
     return { day, amount: dayExpenses + daySharedExpenses };
-    return { day, amount: dayExpenses };
   });
 
   return (

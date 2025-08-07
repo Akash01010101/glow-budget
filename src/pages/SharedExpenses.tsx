@@ -112,7 +112,7 @@ const SharedExpenses = () => {
   return (
     <div className="min-h-screen p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
           <h1 className="text-4xl font-bold text-gradient-accent mb-2">
             Shared Expenses
@@ -121,8 +121,8 @@ const SharedExpenses = () => {
             Track expenses shared with others
           </p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="secondary" size="sm" onClick={exportToExcel}>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <Button variant="secondary" size="sm" onClick={exportToExcel} className="w-full sm:w-auto">
             <Download className="w-4 h-4" />
             Export Excel
           </Button>
@@ -130,6 +130,7 @@ const SharedExpenses = () => {
             variant="accent" 
             size="sm"
             onClick={() => setShowAddForm(!showAddForm)}
+            className="w-full sm:w-auto"
           >
             <Plus className="w-4 h-4" />
             Add Shared Expense
@@ -288,13 +289,13 @@ const SharedExpenses = () => {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 mt-4">
-              <div className="relative flex-1">
+              <div className="relative flex-1 w-full">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   placeholder="Search shared expenses..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-input border-border"
+                  className="pl-10 bg-input border-border w-full"
                 />
               </div>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -331,7 +332,7 @@ const SharedExpenses = () => {
                         </div>
                         <div>
                           <p className="font-medium text-sm">{expense.description}</p>
-                          <div className="flex items-center space-x-2 mt-1">
+                          <div className="flex flex-wrap items-center space-x-2 mt-1">
                             {expense.category && (
                               <Badge variant="secondary" className="text-xs">
                                 {expense.category.name}
@@ -355,7 +356,7 @@ const SharedExpenses = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => deleteTransaction(expense.id)}
+                          onClick={() => deleteTransaction(expense.id, 'shared-expense')}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4" />

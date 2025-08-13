@@ -48,10 +48,10 @@ const SharedExpenses = () => {
   const sharedExpenseTransactions = transactions.filter(t => t.type === 'shared-expense');
   const expenseCategories = categories.filter(c => c.type === 'expense');
 
-  const totalSharedExpenses = sharedExpenseTransactions.reduce((sum, expense) => sum + expense.amount, 0);
+  const totalSharedExpenses = sharedExpenseTransactions.reduce((sum, expense) => sum + (expense.user_share || expense.amount), 0);
   const thisMonthSharedExpenses = sharedExpenseTransactions
     .filter(expense => new Date(expense.date).getMonth() === new Date().getMonth())
-    .reduce((sum, expense) => sum + expense.amount, 0);
+    .reduce((sum, expense) => sum + (expense.user_share || expense.amount), 0);
 
   const filteredExpenses = sharedExpenseTransactions.filter(expense => {
     const matchesSearch = expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||

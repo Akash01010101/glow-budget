@@ -61,7 +61,7 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gradient-primary mb-2">
-            GlowBudget
+            BaadaBudget
           </h1>
           <p className="text-muted-foreground">
             Personal Finance Tracker

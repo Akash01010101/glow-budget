@@ -60,7 +60,7 @@ const Navigation = () => {
           {/* Logo */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gradient-primary">
-              GlowBudget
+              BaadaBudget
             </h2>
             <p className="text-sm text-muted-foreground">Personal Finance Tracker</p>
           </div>

@@ -170,6 +170,10 @@
     box-shadow: var(--shadow-neon-accent);
   }
   
+  .shadow-neon-primary {
+    box-shadow: var(--shadow-neon);
+  }
+  
   .shadow-card {
     box-shadow: var(--shadow-card);
   }

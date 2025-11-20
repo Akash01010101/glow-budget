@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForm } from 'react-hook-form';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface SignInForm {
   email: string;
@@ -58,10 +59,15 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-background via-background to-background/80">
-      <div className="w-full max-w-md">
+      <motion.div 
+        className="w-full max-w-md"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gradient-primary mb-2">
-            BaadaBudget
+          <h1 className="text-5xl font-bold text-gradient-primary mb-2 tracking-wider" style={{ textShadow: '0 0 15px hsl(var(--primary-glow))' }}>
+            GlowBudget
           </h1>
           <p className="text-muted-foreground">
             Personal Finance Tracker
@@ -84,7 +90,12 @@ const Auth = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={signInForm.handleSubmit(onSignIn)} className="space-y-4">
-                  <div className="space-y-2">
+                  <motion.div 
+                    className="space-y-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
                     <Label htmlFor="signin-email">Email</Label>
                     <Input
                       id="signin-email"
@@ -98,9 +109,14 @@ const Auth = () => {
                         {signInForm.formState.errors.email.message}
                       </p>
                     )}
-                  </div>
+                  </motion.div>
 
-                  <div className="space-y-2">
+                  <motion.div 
+                    className="space-y-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                  >
                     <Label htmlFor="signin-password">Password</Label>
                     <div className="relative">
                       <Input
@@ -125,16 +141,22 @@ const Auth = () => {
                         {signInForm.formState.errors.password.message}
                       </p>
                     )}
-                  </div>
+                  </motion.div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full"
-                    disabled={isLoading}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
                   >
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Sign In
-                  </Button>
+                    <Button 
+                      type="submit" 
+                      className="w-full shadow-neon-primary"
+                      disabled={isLoading}
+                    >
+                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Sign In
+                    </Button>
+                  </motion.div>
                 </form>
               </CardContent>
             </TabsContent>
@@ -148,7 +170,12 @@ const Auth = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={signUpForm.handleSubmit(onSignUp)} className="space-y-4">
-                  <div className="space-y-2">
+                  <motion.div 
+                    className="space-y-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
                     <Label htmlFor="signup-name">Full Name</Label>
                     <Input
                       id="signup-name"
@@ -162,9 +189,14 @@ const Auth = () => {
                         {signUpForm.formState.errors.fullName.message}
                       </p>
                     )}
-                  </div>
+                  </motion.div>
 
-                  <div className="space-y-2">
+                  <motion.div 
+                    className="space-y-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                  >
                     <Label htmlFor="signup-email">Email</Label>
                     <Input
                       id="signup-email"
@@ -178,9 +210,14 @@ const Auth = () => {
                         {signUpForm.formState.errors.email.message}
                       </p>
                     )}
-                  </div>
+                  </motion.div>
 
-                  <div className="space-y-2">
+                  <motion.div 
+                    className="space-y-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                  >
                     <Label htmlFor="signup-password">Password</Label>
                     <div className="relative">
                       <Input
@@ -208,7 +245,7 @@ const Auth = () => {
                         {signUpForm.formState.errors.password.message}
                       </p>
                     )}
-                  </div>
+                  </motion.div>
 
                   <div className="space-y-2">
                     <Label htmlFor="confirm-password">Confirm Password</Label>
@@ -226,20 +263,26 @@ const Auth = () => {
                     )}
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full"
-                    disabled={isLoading}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.6 }}
                   >
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Sign Up
-                  </Button>
+                    <Button 
+                      type="submit" 
+                      className="w-full shadow-neon-primary"
+                      disabled={isLoading}
+                    >
+                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Sign Up
+                    </Button>
+                  </motion.div>
                 </form>
               </CardContent>
             </TabsContent>
           </Tabs>
         </Card>
-      </div>
+      </motion.div>
     </div>
   );
 };
